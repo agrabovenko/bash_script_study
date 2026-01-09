@@ -1,0 +1,17 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+  echo "Usage: $0 <logfile>"
+  exit 1
+fi
+
+if [ ! -f "$1" ]; then
+  echo "File does not exist"
+  exit 2
+fi
+
+count_error=$(grep -c "ERROR" "$1")
+count_warn=$(grep -c "WARNING" "$1")
+
+echo "WARNINGS: $count_warn"
+echo "ERRORS:   $count_error"
