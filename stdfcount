@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if [ $# -ne 1 ]; then
+  echo "Usage: $0 <directory>"
+  exit 1
+fi
+
+DIR="$1"
+
+if [ ! -d "$DIR" ]; then
+  echo "Error: $DIR is not a directory"
+  exit 2
+fi
+
+cd "$DIR" || exit 3
+
+for ext in log txt; do
+  count=$(ls *."$ext" 2>/dev/null | wc -l)
+  echo ".$ext: $count"
+done
