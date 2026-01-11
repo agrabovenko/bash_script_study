@@ -1,0 +1,17 @@
+#!/bin/bash
+set -euo pipefail
+
+LOG_FILE="high_cpu.log"
+THRESHOLD=50
+
+while true; do
+  ps -eo pid,comm,%cpu --no-headers | while read -r pid name cpu; do
+    cpu_int=${cpu%.*}
+
+    if [ "$cpu_int" -gt "$THRESHOLD" ]; then
+      echo "$(date '+%Y-%m-%d %H:%M:%S') PID=$pid NAME=$name CPU=${cpu}%" >> "$LOG_FILE"
+    fi
+  done
+
+  sleep 10
+done
