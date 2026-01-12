@@ -1,0 +1,35 @@
+#!/bin/bash
+set -euo pipefail
+
+# Проверка аргумента
+if [ $# -ne 1 ]; then
+  echo "Usage: $0 <directory>"
+  exit 1
+fi
+
+DIR="$1"
+ARCHIVE="backup.tar.gz"
+
+if [ ! -d "$DIR" ]; then
+  echo "Error: $DIR is not a directory"
+  exit 2
+fi
+
+# Находим файлы старше 7 дней
+FILES=$(find "$DIR" -maxdepth 1 -type f -name "*.txt" -mtime +7)
+
+# Если файлов нет, выходим
+if [ -z "$FILES" ]; then
+  echo "No files older than 7 days to archive."
+  exit 0
+fi
+
+# Архивируем файлы
+tar -czf "$ARCHIVE" -C "$DIR" $(basename -a $FILES)
+
+# Удаляем оригиналы
+for file in $FILES; do
+  rm -f "$file"
+done
+
+echo "Archived and removed $(echo "$FILES" | wc -l) files."
