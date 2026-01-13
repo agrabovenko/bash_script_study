@@ -1,0 +1,23 @@
+#!/bin/bash
+
+LOG="access.log"
+OUT="suspicious_ips.txt"
+
+awk '
+{
+  ip=$1
+  date=$4
+  gsub(/\[/, "", date)
+  split(date, d, ":")
+  key=ip" "d[1]
+  count[key]++
+}
+END {
+  for (k in count) {
+    if (count[k] > 10) {
+      split(k, a, " ")
+      print a[1]
+    }
+  }
+}
+' "$LOG" | sort -u > "$OUT"
