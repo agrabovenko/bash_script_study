@@ -1,0 +1,12 @@
+#!/bin/bash
+LOG="internet.log"
+HOST="google.com"
+
+while true; do
+  if ping -c1 -W1 $HOST &>/dev/null; then
+    echo "$(date) OK" >> "$LOG"
+  else
+    echo "$(date) FAIL" >> "$LOG"
+  fi
+  sleep 10
+done
