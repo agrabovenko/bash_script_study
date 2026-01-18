@@ -1,0 +1,24 @@
+#!/bin/bash
+
+LOG="ports_changes.log"
+STATE="ports_state.txt"
+
+get_ports() {
+  ss -tuln | awk 'NR>1 {print $5}' | awk -F: '{print $NF}' | sort -n | uniq
+}
+
+touch "$STATE"
+
+while true; do
+  get_ports > current_ports.txt
+
+  if [ -s "$STATE" ]; then
+    diff "$STATE" current_ports.txt | grep '^>' | while read -r line; do
+      port=$(echo "$line" | sed 's/> //')
+      echo "$(date '+%Y-%m-%d %H:%M:%S') NEW PORT OPENED: $port" >> "$LOG"
+    done
+  fi
+
+  mv current_ports.txt "$STATE"
+  sleep 10
+done
