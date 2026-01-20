@@ -1,0 +1,27 @@
+#!/bin/bash
+
+LOG="process_leak.log"
+STATE="process_count.state"
+THRESHOLD=20
+
+get_proc_count() {
+  ps -e --no-header | wc -l
+}
+
+if [ ! -f "$STATE" ]; then
+  get_proc_count > "$STATE"
+fi
+
+while true; do
+  prev=$(cat "$STATE")
+  current=$(get_proc_count)
+
+  diff=$(( current - prev ))
+
+  if [ "$diff" -ge "$THRESHOLD" ]; then
+    echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: process count increased by $diff (from $prev to $current)" >> "$LOG"
+  fi
+
+  echo "$current" > "$STATE"
+  sleep 10
+done
