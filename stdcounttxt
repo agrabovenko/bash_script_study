@@ -1,0 +1,16 @@
+#!/bin/bash
+DIR="$1"
+OUT="report_$(date +%Y-%m-%d_%H-%M-%S).csv"
+
+# Заголовок CSV
+echo "Filename,Lines,Words,Characters" > "$OUT"
+
+for file in "$DIR"/*.txt; do
+  [ -e "$file" ] || continue  # если файлов нет, пропускаем
+  lines=$(wc -l < "$file")
+  words=$(wc -w < "$file")
+  chars=$(wc -m < "$file")
+  echo "$(basename "$file"),$lines,$words,$chars" >> "$OUT"
+done
+
+echo "Report saved to $OUT"
