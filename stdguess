@@ -1,0 +1,20 @@
+#!/bin/bash
+
+secret=$(( RANDOM % 10 + 1 ))
+
+echo "Привет! Давай сыграем в игру 'Угадай число' от 1 до 10."
+attempts=0
+
+while true; do
+    read -p "Введи свой вариант: " guess
+    ((attempts++))
+
+    if [[ $guess -lt $secret ]]; then
+        echo "Слишком маленькое число!"
+    elif [[ $guess -gt $secret ]]; then
+        echo "Слишком большое число!"
+    else
+        echo "Поздравляю! Ты угадал число $secret за $attempts попыток."
+        break
+    fi
+done
