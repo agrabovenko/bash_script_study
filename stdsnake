@@ -1,0 +1,17 @@
+#!/bin/bash
+
+WIDTH=20
+HEIGHT=10
+
+clear
+
+for ((y=1; y<=HEIGHT; y++)); do
+  for ((x=1; x<=WIDTH; x++)); do
+    if [[ $y -eq 1 || $y -eq $HEIGHT || $x -eq 1 || $x -eq $WIDTH ]]; then
+      printf "#"
+    else
+      printf " "
+    fi
+  done
+  printf "\n"
+done
