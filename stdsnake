@@ -3,15 +3,37 @@
 WIDTH=20
 HEIGHT=10
 
-clear
+snake_x=(10 9 8)
+snake_y=(5 5 5)
 
-for ((y=1; y<=HEIGHT; y++)); do
-  for ((x=1; x<=WIDTH; x++)); do
-    if [[ $y -eq 1 || $y -eq $HEIGHT || $x -eq 1 || $x -eq $WIDTH ]]; then
-      printf "#"
-    else
-      printf " "
+is_snake() {
+  for i in "${!snake_x[@]}"; do
+    if [[ ${snake_x[$i]} -eq $1 && ${snake_y[$i]} -eq $2 ]]; then
+      return 0
     fi
   done
-  printf "\n"
+  return 1
+}
+
+while true; do
+  clear
+
+  for ((y=1; y<=HEIGHT; y++)); do
+    for ((x=1; x<=WIDTH; x++)); do
+
+      if [[ $y -eq 1 || $y -eq $HEIGHT || $x -eq 1 || $x -eq $WIDTH ]]; then
+        printf "#"
+
+      elif is_snake "$x" "$y"; then
+        printf "O"
+
+      else
+        printf " "
+      fi
+
+    done
+    printf "\n"
+  done
+
+  sleep 0.2
 done
