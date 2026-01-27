@@ -1,12 +1,15 @@
 #!/bin/bash
 
-WIDTH=20
-HEIGHT=10
+WIDTH=30
+HEIGHT=15
 
-snake_x=(10 9 8)
-snake_y=(5 5 5)
+snake_x=(15 14 13)
+snake_y=(8 8 8)
 
 dir="RIGHT"
+
+food_x=10
+food_y=5
 
 is_snake() {
   for i in "${!snake_x[@]}"; do
@@ -17,27 +20,44 @@ is_snake() {
   return 1
 }
 
-move_snake() {
-  for ((i=${#snake_x[@]}-1; i>0; i--)); do
-    snake_x[$i]=${snake_x[$((i-1))]}
-    snake_y[$i]=${snake_y[$((i-1))]}
+spawn_food() {
+  while true; do
+    food_x=$((RANDOM % (WIDTH-2) + 2))
+    food_y=$((RANDOM % (HEIGHT-2) + 2))
+    is_snake "$food_x" "$food_y" || break
   done
+}
+
+move_snake() {
+  local grow=0
+
+  if [[ ${snake_x[0]} -eq $food_x && ${snake_y[0]} -eq $food_y ]]; then
+    grow=1
+    spawn_food
+  fi
+
+  if [[ $grow -eq 0 ]]; then
+    unset 'snake_x[-1]'
+    unset 'snake_y[-1]'
+  fi
 
   case "$dir" in
-    UP)    ((snake_y[0]--)) ;;
-    DOWN)  ((snake_y[0]++)) ;;
-    LEFT)  ((snake_x[0]--)) ;;
-    RIGHT) ((snake_x[0]++)) ;;
+    UP)    snake_x=(${snake_x[0]} "${snake_x[@]}"); snake_y=($((snake_y[0]-1)) "${snake_y[@]}") ;;
+    DOWN)  snake_x=(${snake_x[0]} "${snake_x[@]}"); snake_y=($((snake_y[0]+1)) "${snake_y[@]}") ;;
+    LEFT)  snake_x=($((snake_x[0]-1)) "${snake_x[@]}"); snake_y=(${snake_y[0]} "${snake_y[@]}") ;;
+    RIGHT) snake_x=($((snake_x[0]+1)) "${snake_x[@]}"); snake_y=(${snake_y[0]} "${snake_y[@]}") ;;
   esac
 }
+
+spawn_food
 
 while true; do
   read -rsn1 -t 0.1 key
   case "$key" in
-    w) dir="UP" ;;
-    s) dir="DOWN" ;;
-    a) dir="LEFT" ;;
-    d) dir="RIGHT" ;;
+    w) [[ $dir != "DOWN"  ]] && dir="UP" ;;
+    s) [[ $dir != "UP"    ]] && dir="DOWN" ;;
+    a) [[ $dir != "RIGHT" ]] && dir="LEFT" ;;
+    d) [[ $dir != "LEFT"  ]] && dir="RIGHT" ;;
   esac
 
   move_snake
@@ -48,6 +68,8 @@ while true; do
 
       if [[ $y -eq 1 || $y -eq $HEIGHT || $x -eq 1 || $x -eq $WIDTH ]]; then
         printf "#"
+      elif [[ $x -eq $food_x && $y -eq $food_y ]]; then
+        printf "@"
       elif is_snake "$x" "$y"; then
         printf "O"
       else
@@ -58,6 +80,7 @@ while true; do
     printf "\n"
   done
 
-  sleep 0.2
+  sleep 0.15
 done
+
 
