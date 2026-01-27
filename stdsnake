@@ -47,6 +47,21 @@ move_snake() {
     LEFT)  snake_x=($((snake_x[0]-1)) "${snake_x[@]}"); snake_y=(${snake_y[0]} "${snake_y[@]}") ;;
     RIGHT) snake_x=($((snake_x[0]+1)) "${snake_x[@]}"); snake_y=(${snake_y[0]} "${snake_y[@]}") ;;
   esac
+
+  local head_x=${snake_x[0]}
+  local head_y=${snake_y[0]}
+
+  if [[ $head_x -le 1 || $head_x -ge $WIDTH || $head_y -le 1 || $head_y -ge $HEIGHT ]]; then
+    echo "GAME OVER! Hit the wall."
+    exit
+  fi
+
+  for ((i=1; i<${#snake_x[@]}; i++)); do
+    if [[ ${snake_x[$i]} -eq $head_x && ${snake_y[$i]} -eq $head_y ]]; then
+      echo "GAME OVER! Ran into yourself."
+      exit
+    fi
+  done
 }
 
 spawn_food
@@ -65,7 +80,6 @@ while true; do
 
   for ((y=1; y<=HEIGHT; y++)); do
     for ((x=1; x<=WIDTH; x++)); do
-
       if [[ $y -eq 1 || $y -eq $HEIGHT || $x -eq 1 || $x -eq $WIDTH ]]; then
         printf "#"
       elif [[ $x -eq $food_x && $y -eq $food_y ]]; then
@@ -75,12 +89,12 @@ while true; do
       else
         printf " "
       fi
-
     done
     printf "\n"
   done
 
   sleep 0.15
 done
+
 
 
