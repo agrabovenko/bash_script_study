@@ -1,0 +1,34 @@
+#!/bin/bash
+
+DIR="$1"
+STATE="checksums.state"
+LOG="integrity.log"
+
+if [ -z "$DIR" ] || [ ! -d "$DIR" ]; then
+  echo "Usage: $0 <directory>"
+  exit 1
+fi
+
+touch "$STATE"
+
+calc_checksums() {
+  find "$DIR" -type f -exec sha256sum {} \; | sort
+}
+
+CURRENT=$(mktemp)
+calc_checksums > "$CURRENT"
+
+if [ -s "$STATE" ]; then
+  diff "$STATE" "$CURRENT" | while read -r line; do
+    case "$line" in
+      ">"*)
+        echo "$(date) ADDED OR MODIFIED: ${line#> }" >> "$LOG"
+        ;;
+      "<"*)
+        echo "$(date) REMOVED OR MODIFIED: ${line#< }" >> "$LOG"
+        ;;
+    esac
+  done
+fi
+
+mv "$CURRENT" "$STATE"
