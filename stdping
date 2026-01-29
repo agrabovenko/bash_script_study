@@ -1,0 +1,19 @@
+#!/bin/bash
+
+HOSTS_FILE="$1"
+LOG="ping_check.log"
+
+if [ -z "$HOSTS_FILE" ] || [ ! -f "$HOSTS_FILE" ]; then
+  echo "Usage: $0 <hosts_file>"
+  exit 1
+fi
+
+while read -r host; do
+  if ping -c 1 -W 1 "$host" &>/dev/null; then
+    echo "$(date '+%Y-%m-%d %H:%M:%S') $host is UP" >> "$LOG"
+  else
+    echo "$(date '+%Y-%m-%d %H:%M:%S') $host is DOWN" >> "$LOG"
+  fi
+done < "$HOSTS_FILE"
+
+echo "Check complete. Log saved to $LOG"
