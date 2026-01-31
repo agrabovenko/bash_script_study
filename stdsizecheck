@@ -1,0 +1,28 @@
+#!/bin/bash
+
+DIR="$1"
+STATE="sizes.state"
+LOG="growth.log"
+
+if [ -z "$DIR" ] || [ ! -d "$DIR" ]; then
+  echo "Usage: $0 <directory>"
+  exit 1
+fi
+
+snapshot() {
+  find "$DIR" -type f -exec stat -c "%s %n" {} \; | sort
+}
+
+CURRENT=$(mktemp)
+snapshot > "$CURRENT"
+
+if [ -f "$STATE" ]; then
+  join "$STATE" "$CURRENT" | while read -r oldsize newsize file; do
+    diff=$(( newsize - oldsize ))
+    if [ "$diff" -gt 0 ]; then
+      echo "$(date '+%Y-%m-%d %H:%M:%S') GROWTH: $file +$diff bytes" >> "$LOG"
+    fi
+  done
+fi
+
+mv "$CURRENT" "$STATE"
