@@ -1,0 +1,10 @@
+#!/bin/bash
+
+LOG="zombies.log"
+
+ps -eo pid,ppid,stat,comm --no-header | awk '
+$3 ~ /Z/ {
+  printf "%s ZOMBIE: PID=%s PPID=%s CMD=%s\n",
+         strftime("%Y-%m-%d %H:%M:%S"),
+         $1, $2, $4
+}' >> "$LOG"
