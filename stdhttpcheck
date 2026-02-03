@@ -1,0 +1,24 @@
+#!/bin/bash
+
+URLS_FILE="$1"
+THRESHOLD=1.5
+LOG="http_monitor.log"
+
+if [ -z "$URLS_FILE" ] || [ ! -f "$URLS_FILE" ]; then
+  echo "Usage: $0 <urls_file>"
+  exit 1
+fi
+
+while read -r url; do
+  result=$(curl -o /dev/null -s -w "%{http_code} %{time_total}" "$url")
+
+  code=$(echo "$result" | awk '{print $1}')
+  time=$(echo "$result" | awk '{print $2}')
+
+  compare=$(awk -v t="$time" -v th="$THRESHOLD" 'BEGIN {print (t > th)}')
+
+  if [ "$compare" -eq 1 ]; then
+    echo "$(date '+%Y-%m-%d %H:%M:%S') SLOW: $url TIME=${time}s CODE=$code" >> "$LOG"
+  fi
+
+done < "$URLS_FILE"
