@@ -1,0 +1,12 @@
+#!/bin/bash
+
+THRESHOLD_MIN=60
+LOG="long_running.log"
+
+ps -eo pid,etimes,comm --no-header | while read -r pid etimes comm; do
+  minutes=$(( etimes / 60 ))
+
+  if [ "$minutes" -ge "$THRESHOLD_MIN" ]; then
+    echo "$(date '+%Y-%m-%d %H:%M:%S') LONG RUNNING: PID=$pid TIME=${minutes}min CMD=$comm" >> "$LOG"
+  fi
+done
