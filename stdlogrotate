@@ -1,0 +1,27 @@
+#!/bin/bash
+
+DIR="$1"
+DAYS=7
+LOG="archive.log"
+DATE=$(date +%Y-%m-%d)
+BACKUP="backup_$DATE.tar.gz"
+
+if [ -z "$DIR" ] || [ ! -d "$DIR" ]; then
+  echo "Usage: $0 <directory>"
+  exit 1
+fi
+
+FILES=$(find "$DIR" -type f -name "*.log" -mtime +$DAYS)
+
+if [ -z "$FILES" ]; then
+  echo "No logs older than $DAYS days"
+  exit 0
+fi
+
+tar -czf "$BACKUP" $FILES
+
+for f in $FILES; do
+  echo "$(date '+%Y-%m-%d %H:%M:%S') ARCHIVED: $f -> $BACKUP" >> "$LOG"
+done
+
+rm -f $FILES
