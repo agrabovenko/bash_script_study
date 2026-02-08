@@ -1,0 +1,13 @@
+#!/bin/bash
+
+LOGFILE="/var/log/auth.log"
+OUT="suspicious_ssh.log"
+THRESHOLD=5
+
+awk '/Failed password/ {print $(NF-3)}' "$LOGFILE" | \
+sort | uniq -c | \
+while read -r count ip; do
+  if [ "$count" -ge "$THRESHOLD" ]; then
+    echo "$(date '+%Y-%m-%d %H:%M:%S') SUSPICIOUS IP: $ip ATTEMPTS=$count" >> "$OUT"
+  fi
+done
