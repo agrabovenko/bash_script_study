@@ -1,0 +1,16 @@
+#!/bin/bash
+
+HOME_DIR="/home"
+LIMIT_MB=500
+LOG="disk_audit.log"
+
+for userdir in "$HOME_DIR"/*; do
+  [ -d "$userdir" ] || continue
+
+  user=$(basename "$userdir")
+  size_mb=$(du -sm "$userdir" | awk '{print $1}')
+
+  if [ "$size_mb" -gt "$LIMIT_MB" ]; then
+    echo "$(date '+%Y-%m-%d %H:%M:%S') USER=$user SIZE=${size_mb}MB" >> "$LOG"
+  fi
+done
