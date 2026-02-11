@@ -1,0 +1,29 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+  echo "Usage: $0 <service_name>"
+  exit 1
+fi
+
+SERVICE="$1"
+LOG="watchdog.log"
+INTERVAL=15
+
+log() {
+  echo "$(date '+%Y-%m-%d %H:%M:%S') $1" >> "$LOG"
+}
+
+while true; do
+  if pgrep "$SERVICE" > /dev/null; then
+    log "OK: $SERVICE is running"
+  else
+    log "WARNING: $SERVICE is not running. Attempting restart..."
+    if sudo systemctl restart "$SERVICE"; then
+      log "SUCCESS: $SERVICE restarted"
+    else
+      log "ERROR: Failed to restart $SERVICE"
+    fi
+  fi
+
+  sleep "$INTERVAL"
+done
